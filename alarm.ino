@@ -1,3 +1,4 @@
+// (с) Школа 1103 Звонок для учителя по расписанию
 #include <Arduino.h>
 #include "Display.h"
 #include <TimerMs.h>
@@ -8,6 +9,7 @@
 #define SPEAKER_PIN 5
 #define BUTTON_1_PIN 7
 #define BUTTON_2_PIN 6
+#define BOUNCE_DELAY 50 // время на дребезг кнопки в мс
 
 int hours = 8;
 int minutes = 0;
@@ -15,15 +17,20 @@ int seconds = 0;
 TimerMs tmr(1000, 1, 1);
 Display display(DISPLAY_CLK_PIN, DISPLAY_DIO_PIN);
 MelodyPlayer melodyPlayer(SPEAKER_PIN);
-bool flag1 = false;
-bool flag2 = false;
+//bool flag1 = false;
+//bool flag2 = false;
 bool flag3 = false;
-
+bool btnState1 = false;
+bool flagBtn1Pressed = false;
+bool btnState2 = false;
+bool flagBtn2Pressed = false;
+unsigned long btn1Timer = 0; // таймер для устранения дребезга кнопки
+unsigned long btn2Timer = 0; // таймер для устранения дребезга кнопки
 void setup() {
 pinMode(BUTTON_1_PIN, INPUT);
 pinMode(BUTTON_2_PIN, INPUT);
 melodyPlayer.init();
-  // put your setup code here, to run once:
+ 
   Serial.begin(9600);
   //tmr.setTimerMode();
   tmr.setPeriodMode();
@@ -33,37 +40,37 @@ melodyPlayer.init();
 
 void loop() {
 
-
-bool btnState1 = !digitalRead(BUTTON_1_PIN);
-  if (!btnState1 && flag1) {  // обработчик нажатия
-    flag1 = false;
+// кнопка минут
+ btnState1 = !digitalRead(BUTTON_1_PIN);
+  if (btnState1 && !flagBtn1Pressed && millis() - btn1Timer > BOUNCE_DELAY) {  // обработчик нажатия
+    flagBtn1Pressed = true;
     hours = hours + 1;
     if (hours > 23){
       hours = 0;
     }
   }
-  if (btnState1 && !flag1) {  // обработчик отпускания
-    flag1 = true;  
+  if (!btnState1 && flagBtn1Pressed && millis() - btn1Timer > BOUNCE_DELAY) {  // обработчик отпускания
+    flagBtn1Pressed = false;  
   }
   
-
- bool btnState2 = !digitalRead(BUTTON_2_PIN);
-  if (!btnState2 && flag2) {  // обработчик нажатия
-    flag2 = false;
+// кнопка часов
+  btnState2 = !digitalRead(BUTTON_2_PIN);
+  if (btnState2 && !flagBtn2Pressed && millis() - btn2Timer > BOUNCE_DELAY) {  // обработчик нажатия
+    flagBtn2Pressed = true;
     minutes = minutes + 1;
     if (minutes > 59){
       minutes = 0;
       seconds=0;
     }
   }
-    if (btnState2 && !flag2) {  // обработчик отпускания
-    flag2 = true;  
+    if (!btnState2 && flagBtn2Pressed && millis() - btn2Timer > BOUNCE_DELAY) {  // обработчик отпускания
+    flagBtn2Pressed = false;  
   }
 
-  // put your main code here, to run repeatedly:
-  //Serial.println(hours);
-  //Serial.println(minutes);
-  //Serial.println (seconds);
+  
+  Serial.println(hours);
+  Serial.println(minutes);
+  Serial.println (seconds);
 if (tmr.tick()){
   seconds = seconds + 1;
   if (seconds > 59) {
