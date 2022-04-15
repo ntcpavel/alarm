@@ -10,6 +10,7 @@
 #define BUTTON_1_PIN 12
 #define BUTTON_2_PIN 6
 #define BOUNCE_DELAY 200 // время на дребезг кнопки в мс
+#define MAX_LESSONS 12 // количество уроков в расписании
 
 int hours = 8;
 int minutes = 0;
@@ -17,8 +18,6 @@ int seconds = 0;
 TimerMs tmr(1000, 1, 1);
 Display display(DISPLAY_CLK_PIN, DISPLAY_DIO_PIN);
 MelodyPlayer melodyPlayer(SPEAKER_PIN);
-//bool flag1 = false;
-//bool flag2 = false;
 bool flag3 = false;
 bool btnState1 = false;
 bool flagBtn1Pressed = false;
@@ -27,6 +26,13 @@ bool flagBtn2Pressed = false;
 unsigned long btn1Timer = 0; // таймер для устранения дребезга кнопки
 unsigned long btn2Timer = 0; // таймер для устранения дребезга кнопки
 //int cnt=0;
+byte i=0; // счетчик
+struct time_table {
+  byte hours;
+  byte minutes;
+};
+
+time_table my_time_table[MAX_LESSONS];
 
 void setup() {
 pinMode(BUTTON_1_PIN, INPUT);
@@ -37,6 +43,32 @@ melodyPlayer.init();
   //tmr.setTimerMode();
   tmr.setPeriodMode();
   display.init();
+
+//****расписание********  
+my_time_table[0].hours = 9;
+my_time_table[0].minutes = 2;
+my_time_table[1].hours = 9;
+my_time_table[1].minutes = 30;
+my_time_table[2].hours = 9;
+my_time_table[2].minutes = 45;
+my_time_table[3].hours = 10;
+my_time_table[3].minutes = 30;
+my_time_table[4].hours = 10;
+my_time_table[4].minutes = 45;
+my_time_table[5].hours = 11;
+my_time_table[5].minutes = 30;
+my_time_table[6].hours = 11;
+my_time_table[6].minutes = 45;
+my_time_table[7].hours = 12;
+my_time_table[7].minutes = 30;
+my_time_table[8].hours = 12;
+my_time_table[8].minutes = 45;
+my_time_table[9].hours = 13;
+my_time_table[9].minutes = 30;
+my_time_table[10].hours = 13;
+my_time_table[10].minutes = 45;
+my_time_table[11].hours = 14;
+my_time_table[11].minutes = 30;
 }
 
 
@@ -94,53 +126,12 @@ if (tmr.tick()){
   }
 display.showTime(hours, minutes);
 }
-if (hours ==9 && minutes == 02 && seconds==0){
+
+for (i=0; i<MAX_LESSONS;i++) { // проверка звонка
+ if (my_time_table[i].hours ==hours &&  my_time_table[i].minutes== minutes && seconds==0){
   melodyPlayer.playStarwars(); 
-  
-}
-if (hours == 9 && minutes == 30 && !flag3){
-  melodyPlayer.playStarwars(); 
-  flag3 = true;
-}
-if (hours == 9 && minutes == 45 && !flag3){
-  melodyPlayer.playStarwars(); 
-  flag3 = true;
-}
-if (hours == 10 && minutes == 30 && !flag3){
-  melodyPlayer.playStarwars(); 
-  flag3 = true;
-}
-if (hours == 10 && minutes == 45 && !flag3){
-  melodyPlayer.playStarwars(); 
-  flag3 = true;
-}
-if (hours == 11 && minutes == 30 && !flag3){
-  melodyPlayer.playStarwars(); 
-  flag3 = true;
-}
-if (hours == 11 && minutes == 45 && !flag3){
-  melodyPlayer.playStarwars(); 
-  flag3 = true;
-}
-if (hours == 12 && minutes == 30 && !flag3){
-  melodyPlayer.playStarwars(); 
-  flag3 = true;
-}
-if (hours == 12 && minutes == 45 && !flag3){
-  melodyPlayer.playStarwars(); 
-  flag3 = true;
-}
-if (hours == 13 && minutes == 30 && !flag3){
-  melodyPlayer.playStarwars(); 
-  flag3 = true;
-}
-if (hours == 13 && minutes == 45 && !flag3){
-  melodyPlayer.playStarwars(); 
-  flag3 = true;
-}
-if (hours == 14 && minutes == 30 && !flag3){
-  melodyPlayer.playStarwars(); 
-  flag3 = true;
-}
+  }
+  }
+
 
 }
