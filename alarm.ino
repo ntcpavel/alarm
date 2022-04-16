@@ -3,11 +3,11 @@
 #include "Display.h"
 #include <TimerMs.h>
 #include "MelodyPlayer.h"
-
+#define DEBUG 0 // для отладки
 #define DISPLAY_CLK_PIN 2
 #define DISPLAY_DIO_PIN 3
 #define SPEAKER_PIN 5
-#define BUTTON_1_PIN 12
+#define BUTTON_1_PIN 7
 #define BUTTON_2_PIN 6
 #define BOUNCE_DELAY 200 // время на дребезг кнопки в мс
 #define MAX_LESSONS 12 // количество уроков в расписании
@@ -18,14 +18,15 @@ int seconds = 0;
 TimerMs tmr(1000, 1, 1);
 Display display(DISPLAY_CLK_PIN, DISPLAY_DIO_PIN);
 MelodyPlayer melodyPlayer(SPEAKER_PIN);
-bool flag3 = false;
 bool btnState1 = false;
 bool flagBtn1Pressed = false;
 bool btnState2 = false;
 bool flagBtn2Pressed = false;
 unsigned long btn1Timer = 0; // таймер для устранения дребезга кнопки
 unsigned long btn2Timer = 0; // таймер для устранения дребезга кнопки
-//int cnt=0;
+#if (DEBUG==1)
+int cnt=0;
+#endif
 byte i=0; // счетчик
 struct time_table {
   byte hours;
@@ -40,7 +41,6 @@ pinMode(BUTTON_2_PIN, INPUT);
 melodyPlayer.init();
  
   Serial.begin(9600);
-  //tmr.setTimerMode();
   tmr.setPeriodMode();
   display.init();
 
@@ -80,9 +80,11 @@ void loop() {
   if (btnState1 && !flagBtn1Pressed && millis() - btn1Timer > BOUNCE_DELAY) {  // обработчик нажатия
     flagBtn1Pressed = true;
     hours = hours + 1;
-      //cnt++;
-      //Serial.print("cnt=");
-      //Serial.println(cnt);
+      #if (DEBUG==1)
+      cnt++;
+      Serial.print("cnt=");
+      Serial.println(cnt);
+      #endif
     if (hours > 23){
       hours = 0;
     }
