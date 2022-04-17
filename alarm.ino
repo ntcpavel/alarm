@@ -3,7 +3,7 @@
 #include "Display.h"
 #include <TimerMs.h>
 #include "MelodyPlayer.h"
-#define DEBUG 1 // для отладки
+#define DEBUG 0 // для отладки
 #define DISPLAY_CLK_PIN 2
 #define DISPLAY_DIO_PIN 3
 #define SPEAKER_PIN 5
@@ -11,6 +11,8 @@
 #define BUTTON_2_PIN 6
 #define BOUNCE_DELAY 100 // время на дребезг кнопки в мс
 #define MAX_LESSONS 12 // количество уроков в расписании
+#define LONG_PRESS 3000 // длинное нажатие в мс
+
 
 int hours = 8;
 int minutes = 0;
@@ -74,7 +76,7 @@ my_time_table[11].minutes = 30;
 
 void loop() {
 
-// кнопка часов 
+// кнопка часов синяя
  btnState1 = digitalRead(BUTTON_1_PIN);
       
   if (btnState1 && !flagBtn1Pressed && millis() - btn1Timer > BOUNCE_DELAY) {  // обработчик нажатия
@@ -88,12 +90,14 @@ void loop() {
     if (hours > 23){
       hours = 0;
     }
+    
   }
   if (!btnState1 && flagBtn1Pressed && millis() - btn1Timer > BOUNCE_DELAY) {  // обработчик отпускания
-    flagBtn1Pressed = false;  
+    flagBtn1Pressed = false;
+    btn1Timer = millis();  
   }
   
-// кнопка минут
+// кнопка минут зеленая
   btnState2 = digitalRead(BUTTON_2_PIN);
  // Serial.print("btnState2=");
 //  Serial.println(btnState2);
@@ -106,7 +110,8 @@ void loop() {
      }
   }
     if (!btnState2 && flagBtn2Pressed && millis() - btn2Timer > BOUNCE_DELAY) {  // обработчик отпускания
-    flagBtn2Pressed = false;  
+    flagBtn2Pressed = false;
+    btn2Timer = millis();  
   }
 
   
