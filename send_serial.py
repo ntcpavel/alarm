@@ -1,12 +1,26 @@
 import serial #подключаем библиотеку для последовательной связи
 import time #подключаем библиотеку чтобы задействовать функции задержки в программе
+import datetime #подключаем библиотеку для работы со временем
+
  
 ArduinoSerial = serial.Serial('com6',9600) #создаем объект для работы с портом последовательной связи
 time.sleep(2) #ждем 2 секунды чтобы установилась последовательная связь
-#print (ArduinoSerial.readline()) #считываем данные из последовательного порта и печатаем их в виде строки
-#print ("Enter 1 to turn ON LED and 0 to turn OFF LED")
+now = datetime.datetime.now()
+h=str(now.hour)
+if len(h)==1:
+   h="0"+str(now.hour)
+m=str(now.minute)
+if len(m)==1:
+   m="0"+str(now.minute)
+s=str(now.second)           
+if len(s)==1:
+   s="0"+str(now.second)
+                
+clock=h+m+s
+#print (time)
+
 with open('time_table.txt','r') as f: 
-  line=f.readline()  
+  line=f.readline()+clock  
   ArduinoSerial.write(line.encode())
   print(line)
   print("ok!")

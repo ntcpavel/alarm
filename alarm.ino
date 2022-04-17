@@ -16,9 +16,9 @@
 
 
 
-int hours = 8;
-int minutes = 0;
-int seconds = 0;
+byte hours = 8;
+byte minutes = 0;
+byte seconds = 0;
 GyverTM1637 disp(CLK, DIO);
 MelodyPlayer melodyPlayer(SPEAKER_PIN);
 bool btnState1 = false;
@@ -154,6 +154,8 @@ for (i=0; i<MAX_LESSONS;i++) { // проверка звонка
 }
 
 if (recievedFlag== true) {
+  disp.displayInt(strData.length());
+  delay(2000);  
  
 for (i=0, j=0; i<MAX_LESSONS*4; i+=4,j++) {
  strData1=strData.substring(i,i+2);
@@ -161,6 +163,13 @@ for (i=0, j=0; i<MAX_LESSONS*4; i+=4,j++) {
  my_time_table[j].hours=strData1.toInt();
  my_time_table[j].minutes=strData2.toInt();
 }
+//время
+strData1=strData.substring(MAX_LESSONS*4,MAX_LESSONS*4+2);
+hours=strData1.toInt();
+strData1=strData.substring(MAX_LESSONS*4+2,MAX_LESSONS*4+4);
+minutes=strData1.toInt();
+strData1=strData.substring(MAX_LESSONS*4+4,MAX_LESSONS*4+6);
+seconds=strData1.toInt();
 strData = "";                          // очистить
 recievedFlag = false;                  // опустить флаг
   }
