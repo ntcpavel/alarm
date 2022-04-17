@@ -1,11 +1,11 @@
 // (с) Школа 1103 Звонок для учителя по расписанию
 #include <Arduino.h>
-#include "Display.h"
+#include "GyverTM1637.h"
 #include <TimerMs.h>
 #include "MelodyPlayer.h"
-#define DEBUG 0 // для отладки
-#define DISPLAY_CLK_PIN 2
-#define DISPLAY_DIO_PIN 3
+#define DEBUG 1 // для отладки
+#define CLK 2
+#define DIO 3
 #define SPEAKER_PIN 5
 #define BUTTON_1_PIN 7
 #define BUTTON_2_PIN 6
@@ -18,12 +18,13 @@ int hours = 8;
 int minutes = 0;
 int seconds = 0;
 TimerMs tmr(1000, 1, 1);
-Display display(DISPLAY_CLK_PIN, DISPLAY_DIO_PIN);
+GyverTM1637 disp(CLK, DIO);
 MelodyPlayer melodyPlayer(SPEAKER_PIN);
 bool btnState1 = false;
 bool flagBtn1Pressed = false;
 bool btnState2 = false;
 bool flagBtn2Pressed = false;
+bool pointFlag = false;
 unsigned long btn1Timer = 0; // таймер для устранения дребезга кнопки
 unsigned long btn2Timer = 0; // таймер для устранения дребезга кнопки
 unsigned long btn1LongTimer = 0; // таймер для длинного нажатия
@@ -45,7 +46,8 @@ melodyPlayer.init();
  
   Serial.begin(9600);
   tmr.setPeriodMode();
-  display.init();
+  disp.clear();
+  disp.brightness(7);  // яркость, 0 - 7 (минимум - максимум)
 
 //****расписание********  
 my_time_table[0].hours = 9;
@@ -122,6 +124,8 @@ void loop() {
  // Serial.println(hours);
  // Serial.println(minutes);
  // Serial.println (seconds);
+ 
+//**** Таймер 
 if (tmr.tick()){
   seconds = seconds + 1;
   if (seconds > 59) {
@@ -135,7 +139,9 @@ if (tmr.tick()){
   if (hours > 23) {
     hours = 0; 
   }
-display.showTime(hours, minutes);
+  pointFlag = !pointFlag;
+  disp.point(pointFlag);   // выкл/выкл точки
+  disp.displayClock(hours, minutes); // выводим время функцией часов
 }
 
 for (i=0; i<MAX_LESSONS;i++) { // проверка звонка
@@ -147,5 +153,22 @@ for (i=0; i<MAX_LESSONS;i++) { // проверка звонка
 
   void show_time_table(){
   // показать расписание
-   Serial.println("Long press!!!"); 
+  #if (DEBUG==1)
+      Serial.println("Start");
+      Serial.print("h=");Serial.print(hours);Serial.print(" m=");Serial.print(minutes); Serial.print(" s=");Serial.println(seconds);
+      #endif
+      byte welcome_banner[] = {_c, _l, _o, _c, _empty, _empty,
+                           _t, _a, _b, _l, _e, _empty, _empty
+                                                     };
+  disp.runningString(welcome_banner, sizeof(welcome_banner), 200);  // 200 время в миллисекундах
+  for (i=0; i<MAX_LESSONS;i++) {
+  disp.displayInt(i);
+  delay(500);
+  disp.displayClock(my_time_table[i].hours, my_time_table[i].minutes);
+  delay(500);
+   }
+  #if (DEBUG==1)
+      Serial.println("End");
+      Serial.print("h=");Serial.print(hours);Serial.print(" m=");Serial.print(minutes); Serial.print(" s=");Serial.println(seconds);
+   #endif   
 }
