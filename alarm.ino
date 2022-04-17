@@ -26,6 +26,7 @@ bool btnState2 = false;
 bool flagBtn2Pressed = false;
 unsigned long btn1Timer = 0; // таймер для устранения дребезга кнопки
 unsigned long btn2Timer = 0; // таймер для устранения дребезга кнопки
+unsigned long btn1LongTimer = 0; // таймер для длинного нажатия
 #if (DEBUG==1)
 int cnt=0;
 #endif
@@ -90,11 +91,14 @@ void loop() {
     if (hours > 23){
       hours = 0;
     }
-    
+    btn1LongTimer=millis();
   }
   if (!btnState1 && flagBtn1Pressed && millis() - btn1Timer > BOUNCE_DELAY) {  // обработчик отпускания
     flagBtn1Pressed = false;
-    btn1Timer = millis();  
+    btn1Timer = millis();
+    if (millis()-btn1LongTimer>LONG_PRESS){
+      show_time_table();  
+    }
   }
   
 // кнопка минут зеленая
@@ -139,6 +143,9 @@ for (i=0; i<MAX_LESSONS;i++) { // проверка звонка
   melodyPlayer.playStarwars(); 
   }
   }
+  }
 
-
+  void show_time_table(){
+  // показать расписание
+   Serial.println("Long press!!!"); 
 }
