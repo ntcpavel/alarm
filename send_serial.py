@@ -5,16 +5,20 @@ ArduinoSerial = serial.Serial('com6',9600) #создаем объект для �
 time.sleep(2) #ждем 2 секунды чтобы установилась последовательная связь
 print (ArduinoSerial.readline()) #считываем данные из последовательного порта и печатаем их в виде строки
 print ("Enter 1 to turn ON LED and 0 to turn OFF LED")
+with open('time_table.txt','r') as f: 
+ for line in f:
+    print(line)
+
  
 while 1: #бесконечный цикл
     var = input() #считываем данные от пользователя
     print ("you entered", var) #печатаем подтверждение ввода    
-    if (var == '1'): #если значение равно 1
-        ArduinoSerial.write("1".encode()) #передаем 1
+    if (var == "1140"): #если значение равно 1
+        ArduinoSerial.write("1140".encode()) #передаем 1
         print ("LED turned ON")
         time.sleep(1)
     
-    if (var == '0'): # если значение равно 0
-        ArduinoSerial.write("0".encode()) #передаем 0
+    if (var != ""): # если значение равно 0
+        ArduinoSerial.write(var.encode()) #передаем 0
         print ("LED turned OFF")
         time.sleep(1)
