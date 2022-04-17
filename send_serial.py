@@ -24,6 +24,7 @@ with open('time_table.txt','r') as f:
   ArduinoSerial.write(line.encode())
   print(line)
   print("ok!")
+  time.sleep(2)
   ArduinoSerial.close()
 
  
