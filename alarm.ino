@@ -1,7 +1,7 @@
 // (с) Школа 1103 Звонок для учителя по расписанию
 #include <Arduino.h>
 #include "GyverTM1637.h"
-#include <TimerMs.h>
+#include <FlexiTimer2.h>
 #include "MelodyPlayer.h"
 #define DEBUG 1 // для отладки
 #define CLK 2
@@ -12,12 +12,13 @@
 #define BOUNCE_DELAY 100 // время на дребезг кнопки в мс
 #define MAX_LESSONS 12 // количество уроков в расписании
 #define LONG_PRESS 3000 // длинное нажатие в мс
+#define TIMER_PERIOD 1000 // период аппаратного таймера
+
 
 
 int hours = 8;
 int minutes = 0;
 int seconds = 0;
-TimerMs tmr(1000, 1, 1);
 GyverTM1637 disp(CLK, DIO);
 MelodyPlayer melodyPlayer(SPEAKER_PIN);
 bool btnState1 = false;
@@ -45,9 +46,10 @@ pinMode(BUTTON_2_PIN, INPUT);
 melodyPlayer.init();
  
   Serial.begin(9600);
-  tmr.setPeriodMode();
   disp.clear();
   disp.brightness(7);  // яркость, 0 - 7 (минимум - максимум)
+  FlexiTimer2::set(TIMER_PERIOD, timerInterupt); // установка аппаратного таймера
+  FlexiTimer2::start(); // пуск аппаратного таймера
 
 //****расписание********  
 my_time_table[0].hours = 9;
@@ -125,24 +127,11 @@ void loop() {
  // Serial.println(minutes);
  // Serial.println (seconds);
  
-//**** Таймер 
-if (tmr.tick()){
-  seconds = seconds + 1;
-  if (seconds > 59) {
-    minutes = minutes + 1;
-    seconds = 0;
-  }
-  if (minutes > 59) {
-    hours = hours + 1;
-    minutes = 0;
-  }
-  if (hours > 23) {
-    hours = 0; 
-  }
-  pointFlag = !pointFlag;
+//**** Вывод времени
+ 
   disp.point(pointFlag);   // выкл/выкл точки
   disp.displayClock(hours, minutes); // выводим время функцией часов
-}
+
 
 for (i=0; i<MAX_LESSONS;i++) { // проверка звонка
  if (my_time_table[i].hours ==hours &&  my_time_table[i].minutes== minutes && seconds==0){
@@ -162,7 +151,7 @@ for (i=0; i<MAX_LESSONS;i++) { // проверка звонка
                                                      };
   disp.runningString(welcome_banner, sizeof(welcome_banner), 200);  // 200 время в миллисекундах
   for (i=0; i<MAX_LESSONS;i++) {
-  disp.displayInt(i);
+  disp.displayInt(i+1);
   delay(500);
   disp.displayClock(my_time_table[i].hours, my_time_table[i].minutes);
   delay(500);
@@ -171,4 +160,22 @@ for (i=0; i<MAX_LESSONS;i++) { // проверка звонка
       Serial.println("End");
       Serial.print("h=");Serial.print(hours);Serial.print(" m=");Serial.print(minutes); Serial.print(" s=");Serial.println(seconds);
    #endif   
+}
+void  timerInterupt(){
+  //прерывание аппаратного таймера
+  seconds = seconds + 1;
+  if (seconds > 59) {
+    minutes = minutes + 1;
+    seconds = 0;
+  }
+  if (minutes > 59) {
+    hours = hours + 1;
+    minutes = 0;
+  }
+  if (hours > 23) {
+    hours = 0; 
+  }
+  pointFlag = !pointFlag;
+  
+  
 }
