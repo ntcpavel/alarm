@@ -3,7 +3,7 @@
 #include "GyverTM1637.h"
 #include <FlexiTimer2.h>
 #include "MelodyPlayer.h"
-#define DEBUG 1 // для отладки
+#define DEBUG 0 // для отладки
 #define CLK 2
 #define DIO 3
 #define SPEAKER_PIN 5
@@ -29,10 +29,16 @@ bool pointFlag = false;
 unsigned long btn1Timer = 0; // таймер для устранения дребезга кнопки
 unsigned long btn2Timer = 0; // таймер для устранения дребезга кнопки
 unsigned long btn1LongTimer = 0; // таймер для длинного нажатия
+String strData = ""; //полученная строка по com порту
+String strData1 = ""; 
+String strData2 = "";
+boolean recievedFlag; // флаг получения
+
 #if (DEBUG==1)
 int cnt=0;
 #endif
 byte i=0; // счетчик
+byte j=0; // счетчик
 struct time_table {
   byte hours;
   byte minutes;
@@ -138,7 +144,30 @@ for (i=0; i<MAX_LESSONS;i++) { // проверка звонка
   melodyPlayer.playStarwars(); 
   }
   }
+
+// ****получение нового расписания по com порту
+
+  while (Serial.available()>0){
+    strData += (char)Serial.read();        // заполняем строку принятыми данными
+    recievedFlag = true;                   // поднять флаг что получили данные
+    delay(2);              
+}
+
+if (recievedFlag== true) {
+ 
+for (i=0, j=0; i<MAX_LESSONS*4; i+=4,j++) {
+ strData1=strData.substring(i,i+2);
+ strData2=strData.substring(i+2,i+4); 
+ my_time_table[j].hours=strData1.toInt();
+ my_time_table[j].minutes=strData2.toInt();
+}
+strData = "";                          // очистить
+recievedFlag = false;                  // опустить флаг
   }
+
+}
+
+  
 
   void show_time_table(){
   // показать расписание
@@ -152,9 +181,9 @@ for (i=0; i<MAX_LESSONS;i++) { // проверка звонка
   disp.runningString(welcome_banner, sizeof(welcome_banner), 200);  // 200 время в миллисекундах
   for (i=0; i<MAX_LESSONS;i++) {
   disp.displayInt(i+1);
-  delay(500);
+  delay(700);
   disp.displayClock(my_time_table[i].hours, my_time_table[i].minutes);
-  delay(500);
+  delay(700);
    }
   #if (DEBUG==1)
       Serial.println("End");

@@ -3,13 +3,17 @@ import time #подключаем библиотеку чтобы задейст
  
 ArduinoSerial = serial.Serial('com6',9600) #создаем объект для работы с портом последовательной связи
 time.sleep(2) #ждем 2 секунды чтобы установилась последовательная связь
-print (ArduinoSerial.readline()) #считываем данные из последовательного порта и печатаем их в виде строки
-print ("Enter 1 to turn ON LED and 0 to turn OFF LED")
+#print (ArduinoSerial.readline()) #считываем данные из последовательного порта и печатаем их в виде строки
+#print ("Enter 1 to turn ON LED and 0 to turn OFF LED")
 with open('time_table.txt','r') as f: 
- for line in f:
-    print(line)
+  line=f.readline()  
+  ArduinoSerial.write(line.encode())
+  print(line)
+  print("ok!")
+  ArduinoSerial.close()
 
  
+"""
 while 1: #бесконечный цикл
     var = input() #считываем данные от пользователя
     print ("you entered", var) #печатаем подтверждение ввода    
@@ -22,3 +26,4 @@ while 1: #бесконечный цикл
         ArduinoSerial.write(var.encode()) #передаем 0
         print ("LED turned OFF")
         time.sleep(1)
+"""
